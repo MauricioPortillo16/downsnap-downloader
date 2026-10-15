@@ -1,0 +1,776 @@
+<!DOCTYPE html>
+<html lang="es" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DownSnap | Descargador Multiplataforma HD Sin Marca de Agua</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#eef2ff',
+                            100: '#e0e7ff',
+                            500: '#6366f1',
+                            600: '#4f46e5',
+                            700: '#4338ca',
+                            900: '#312e81',
+                        },
+                        tiktok: '#00f2fe',
+                        pinterest: '#E60023',
+                        youtube: '#FF0000',
+                        facebook: '#1877F2',
+                        instagram: '#E1306C',
+                        spotify: '#1DB954'
+                    },
+                    animation: {
+                        'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'float': 'float 5s ease-in-out infinite',
+                        'shimmer': 'shimmer 2s infinite',
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0px)' },
+                            '50%': { transform: 'translateY(-10px)' },
+                        },
+                        shimmer: {
+                            '100%': { transform: 'translateX(100%)' }
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        
+        /* Glassmorphism Styles */
+        .glass-card {
+            background: rgba(15, 23, 42, 0.75);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .light .glass-card {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(0, 0, 0, 0.08);
+        }
+
+        /* Platform Active Glow Effects */
+        .platform-btn {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .platform-btn.active {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px -5px rgba(99, 102, 241, 0.4);
+            border-color: rgba(99, 102, 241, 0.8);
+            background: rgba(99, 102, 241, 0.15);
+        }
+
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen transition-colors duration-300 dark:bg-slate-950 dark:text-slate-100 light:bg-slate-50 light:text-slate-900 selection:bg-indigo-500 selection:text-white relative overflow-x-hidden">
+
+    <div class="fixed inset-0 z-0 overflow-hidden pointer-events-none">
+        <div class="absolute -top-40 -left-40 w-96 h-96 bg-indigo-600/30 rounded-full blur-[128px] animate-pulse-slow"></div>
+        <div class="absolute top-1/3 -right-40 w-96 h-96 bg-pink-600/20 rounded-full blur-[128px] animate-pulse-slow" style="animation-delay: 2s;"></div>
+        <div class="absolute -bottom-40 left-1/3 w-96 h-96 bg-cyan-600/20 rounded-full blur-[128px] animate-pulse-slow" style="animation-delay: 4s;"></div>
+    </div>
+
+    <header class="relative z-20 border-b border-slate-800/80 dark:border-slate-800/80 light:border-slate-200 bg-slate-950/80 dark:bg-slate-950/80 light:bg-white/80 backdrop-blur-md sticky top-0">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <!-- Brand Logo -->
+            <a href="#" class="flex items-center gap-3 group">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 via-purple-600 to-pink-500 flex items-center justify-center shadow-lg shadow-indigo-500/30 group-hover:scale-105 transition-transform duration-300">
+                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+                    </svg>
+                </div>
+                <div class="flex flex-col">
+                    <span class="text-xl font-black tracking-tight text-white dark:text-white light:text-slate-900">
+                        Down<span class="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-pink-500">Snap</span>
+                    </span>
+                    <span class="text-[10px] text-indigo-400 font-semibold tracking-wider uppercase -mt-1">Multi Downloader</span>
+                </div>
+            </a>
+
+            <!-- Theme Switcher & Status -->
+            <div class="flex items-center gap-3">
+                <span class="hidden sm:inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                    <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+                    API En Línea
+                </span>
+                
+                <button id="theme-toggle" class="p-2.5 rounded-xl bg-slate-800/60 dark:bg-slate-800/60 light:bg-slate-100 text-slate-300 dark:text-slate-300 light:text-slate-700 hover:text-white border border-slate-700/50 dark:border-slate-700/50 light:border-slate-200 transition-colors" title="Cambiar Tema">
+                    <!-- Sun icon -->
+                    <svg id="theme-sun" class="w-5 h-5 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+                    <!-- Moon icon -->
+                    <svg id="theme-moon" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pt-10 pb-16">
+        
+        <!-- Hero Section Header -->
+        <div class="text-center max-w-3xl mx-auto mb-10">
+            <h1 class="text-3xl sm:text-5xl font-extrabold tracking-tight text-white dark:text-white light:text-slate-900 mb-4 leading-tight">
+                Descarga videos, fotos y música <span class="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-500">al instante</span>
+            </h1>
+            <p class="text-slate-400 dark:text-slate-400 light:text-slate-600 text-base sm:text-lg">
+                TikTok, Pinterest, YouTube, Facebook, Instagram y Spotify — Sin marca de agua, gratis y en máxima calidad HD.
+            </p>
+        </div>
+
+        <!-- Main Form Card -->
+        <div class="glass-card rounded-3xl p-6 sm:p-8 shadow-2xl mb-12 relative overflow-hidden">
+            
+            <!-- Platform Selection Buttons with Official Brand SVGs -->
+            <div class="mb-8">
+                <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3">
+                    Selecciona o Pega un enlace directo:
+                </label>
+                <div class="grid grid-cols-3 sm:grid-cols-6 gap-3" id="platform-buttons">
+                    
+                    <!-- TikTok -->
+                    <button type="button" data-platform="tiktok" class="platform-btn active flex flex-col items-center justify-center p-3 rounded-2xl bg-slate-900/60 dark:bg-slate-900/60 light:bg-slate-100 border border-slate-700/60 dark:border-slate-700/60 light:border-slate-200 group">
+                        <div class="w-8 h-8 rounded-full bg-slate-950 flex items-center justify-center mb-1.5 p-1.5 text-black shadow-md">
+                            <!-- Official TikTok Icon -->
+                            <svg class="w-full h-full text-cyan-400" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1-.1z"/>
+                            </svg>
+                        </div>
+                        <span class="text-xs font-semibold text-slate-300 dark:text-slate-300 light:text-slate-700 group-hover:text-white">TikTok</span>
+                    </button>
+
+                    <!-- Pinterest -->
+                    <button type="button" data-platform="pinterest" class="platform-btn flex flex-col items-center justify-center p-3 rounded-2xl bg-slate-900/60 dark:bg-slate-900/60 light:bg-slate-100 border border-slate-700/60 dark:border-slate-700/60 light:border-slate-200 group">
+                        <div class="w-8 h-8 rounded-full bg-[#E60023] flex items-center justify-center mb-1.5 p-1.5 text-white shadow-md">
+                            <!-- Official Pinterest Icon -->
+                            <svg class="w-full h-full" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M12.017 0C5.396 0 .029 5.367.029 11.987c0 5.079 3.158 9.417 7.618 11.162-.105-.949-.199-2.403.041-3.439.219-.937 1.406-5.957 1.406-5.957s-.359-.72-.359-1.781c0-1.663.967-2.911 2.168-2.911 1.024 0 1.518.769 1.518 1.688 0 1.029-.653 2.567-.992 3.992-.285 1.193.6 2.165 1.775 2.165 2.128 0 3.768-2.245 3.768-5.487 0-2.861-2.063-4.869-5.008-4.869-3.41 0-5.409 2.562-5.409 5.199 0 1.033.394 2.143.889 2.741.099.12.112.225.085.345-.09.375-.293 1.199-.334 1.363-.053.225-.172.271-.401.165-1.495-.69-2.433-2.878-2.433-4.646 0-3.776 2.748-7.252 7.951-7.252 4.192 0 7.452 2.986 7.452 6.969 0 4.168-2.628 7.525-6.282 7.525-1.225 0-2.376-.637-2.768-1.386l-.754 2.873c-.272 1.037-1.01 2.336-1.506 3.132 1.168.358 2.413.551 3.692.551 6.62 0 11.987-5.367 11.987-11.987C24 5.367 18.637 0 12.017 0z"/>
+                            </svg>
+                        </div>
+                        <span class="text-xs font-semibold text-slate-300 dark:text-slate-300 light:text-slate-700 group-hover:text-white">Pinterest</span>
+                    </button>
+
+                    <!-- YouTube -->
+                    <button type="button" data-platform="youtube" class="platform-btn flex flex-col items-center justify-center p-3 rounded-2xl bg-slate-900/60 dark:bg-slate-900/60 light:bg-slate-100 border border-slate-700/60 dark:border-slate-700/60 light:border-slate-200 group">
+                        <div class="w-8 h-8 rounded-full bg-[#FF0000] flex items-center justify-center mb-1.5 p-1.5 text-white shadow-md">
+                            <!-- Official YouTube Icon -->
+                            <svg class="w-full h-full" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+                            </svg>
+                        </div>
+                        <span class="text-xs font-semibold text-slate-300 dark:text-slate-300 light:text-slate-700 group-hover:text-white">YouTube</span>
+                    </button>
+
+                    <!-- Facebook -->
+                    <button type="button" data-platform="facebook" class="platform-btn flex flex-col items-center justify-center p-3 rounded-2xl bg-slate-900/60 dark:bg-slate-900/60 light:bg-slate-100 border border-slate-700/60 dark:border-slate-700/60 light:border-slate-200 group">
+                        <div class="w-8 h-8 rounded-full bg-[#1877F2] flex items-center justify-center mb-1.5 p-1.5 text-white shadow-md">
+                            <!-- Official Facebook Icon -->
+                            <svg class="w-full h-full" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.469h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.469h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                            </svg>
+                        </div>
+                        <span class="text-xs font-semibold text-slate-300 dark:text-slate-300 light:text-slate-700 group-hover:text-white">Facebook</span>
+                    </button>
+
+                    <!-- Instagram -->
+                    <button type="button" data-platform="instagram" class="platform-btn flex flex-col items-center justify-center p-3 rounded-2xl bg-slate-900/60 dark:bg-slate-900/60 light:bg-slate-100 border border-slate-700/60 dark:border-slate-700/60 light:border-slate-200 group">
+                        <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-[#f09433] via-[#dc2743] to-[#bc1888] flex items-center justify-center mb-1.5 p-1.5 text-white shadow-md">
+                            <!-- Official Instagram Icon -->
+                            <svg class="w-full h-full" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/>
+                            </svg>
+                        </div>
+                        <span class="text-xs font-semibold text-slate-300 dark:text-slate-300 light:text-slate-700 group-hover:text-white">Instagram</span>
+                    </button>
+
+                    <!-- Spotify -->
+                    <button type="button" data-platform="spotify" class="platform-btn flex flex-col items-center justify-center p-3 rounded-2xl bg-slate-900/60 dark:bg-slate-900/60 light:bg-slate-100 border border-slate-700/60 dark:border-slate-700/60 light:border-slate-200 group">
+                        <div class="w-8 h-8 rounded-full bg-[#1DB954] flex items-center justify-center mb-1.5 p-1.5 text-black shadow-md">
+                            <!-- Official Spotify Icon -->
+                            <svg class="w-full h-full text-slate-950" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.494 17.31c-.204.334-.64.444-.972.238-2.664-1.626-6.02-1.996-9.967-1.09-.382.088-.756-.15-.845-.533-.087-.384.15-.758.533-.846 4.316-.99 8.014-.57 11.01 1.258.332.204.444.64.24 9.973zm1.408-3.136c-.259.418-.807.56-1.225.302-3.056-1.88-7.728-2.433-11.238-1.332-.477.148-.992-.116-1.14-.593-.149-.476.115-.991.593-1.14 4.02-1.26 9.176-.632 12.708 1.537.417.257.558.805.302 1.226zm.135-3.328c-3.666-2.176-9.718-2.378-13.208-1.316-.576.175-1.18-.15-1.355-.726-.176-.576.15-1.18.726-1.355 4.02-1.22 10.748-1 14.975 1.512.518.307.69.96.38 1.478-.308.518-.96.69-1.478.38l-.04-.027z"/>
+                            </svg>
+                        </div>
+                        <span class="text-xs font-semibold text-slate-300 dark:text-slate-300 light:text-slate-700 group-hover:text-white">Spotify</span>
+                    </button>
+
+                </div>
+            </div>
+
+            <form id="download-form" class="space-y-6">
+                
+                <div class="relative flex items-center">
+                    <!-- Dynamic Detected Platform Badge Icon -->
+                    <div id="detected-icon" class="absolute left-4 w-7 h-7 rounded-lg bg-indigo-500/20 text-indigo-400 flex items-center justify-center pointer-events-none transition-all">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path></svg>
+                    </div>
+
+                    <!-- Input Element -->
+                    <input type="url" id="url-input" required autocomplete="off"
+                        placeholder="Pega el enlace de TikTok, Pinterest, YouTube, Instagram..." 
+                        class="w-full py-4 pl-14 pr-28 rounded-2xl bg-slate-900/80 dark:bg-slate-900/80 light:bg-white border border-slate-700/80 dark:border-slate-700/80 light:border-slate-300 text-white dark:text-white light:text-slate-900 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-sm sm:text-base transition-all shadow-inner">
+
+                    <!-- Actions Inside Input: Paste & Clear -->
+                    <div class="absolute right-3 flex items-center gap-1">
+                        <button type="button" id="clear-btn" class="hidden p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors" title="Limpiar">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                        </button>
+                        <button type="button" id="paste-btn" class="px-3 py-1.5 rounded-xl bg-indigo-600/20 hover:bg-indigo-600/30 text-indigo-300 text-xs font-semibold border border-indigo-500/30 flex items-center gap-1.5 transition-all">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path></svg>
+                            <span>Pegar</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    
+                    <!-- Option MP4 1080p -->
+                    <label class="relative flex items-center justify-between p-3.5 rounded-2xl bg-slate-900/40 dark:bg-slate-900/40 light:bg-slate-100 border border-slate-700/60 dark:border-slate-700/60 light:border-slate-200 cursor-pointer hover:border-indigo-500/50 transition-all group">
+                        <div class="flex items-center gap-3">
+                            <input type="radio" name="format" value="mp4-1080" checked class="w-4 h-4 text-indigo-600 focus:ring-indigo-500 bg-slate-800 border-slate-600">
+                            <div class="flex flex-col">
+                                <span class="text-xs font-bold text-white dark:text-white light:text-slate-900">MP4 Video HD</span>
+                                <span class="text-[10px] text-slate-400">1080p - Sin Marca</span>
+                            </div>
+                        </div>
+                        <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-indigo-500/20 text-indigo-300">MAX</span>
+                    </label>
+
+                    <!-- Option MP4 720p -->
+                    <label class="relative flex items-center justify-between p-3.5 rounded-2xl bg-slate-900/40 dark:bg-slate-900/40 light:bg-slate-100 border border-slate-700/60 dark:border-slate-700/60 light:border-slate-200 cursor-pointer hover:border-indigo-500/50 transition-all group">
+                        <div class="flex items-center gap-3">
+                            <input type="radio" name="format" value="mp4-720" class="w-4 h-4 text-indigo-600 focus:ring-indigo-500 bg-slate-800 border-slate-600">
+                            <div class="flex flex-col">
+                                <span class="text-xs font-bold text-white dark:text-white light:text-slate-900">MP4 Estándar</span>
+                                <span class="text-[10px] text-slate-400">720p HD</span>
+                            </div>
+                        </div>
+                        <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-800 text-slate-400">RÁPIDO</span>
+                    </label>
+
+                    <!-- Option MP3 Audio -->
+                    <label class="relative flex items-center justify-between p-3.5 rounded-2xl bg-slate-900/40 dark:bg-slate-900/40 light:bg-slate-100 border border-slate-700/60 dark:border-slate-700/60 light:border-slate-200 cursor-pointer hover:border-indigo-500/50 transition-all group">
+                        <div class="flex items-center gap-3">
+                            <input type="radio" name="format" value="mp3" class="w-4 h-4 text-indigo-600 focus:ring-indigo-500 bg-slate-800 border-slate-600">
+                            <div class="flex flex-col">
+                                <span class="text-xs font-bold text-white dark:text-white light:text-slate-900">Audio MP3</span>
+                                <span class="text-[10px] text-slate-400">320 kbps HQ</span>
+                            </div>
+                        </div>
+                        <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-pink-500/20 text-pink-300">AUDIO</span>
+                    </label>
+
+                </div>
+
+                <!-- Submit Button -->
+                <button type="submit" id="main-submit-btn" class="w-full py-4 px-6 rounded-2xl bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 hover:from-indigo-500 hover:to-pink-500 text-white font-bold text-base shadow-xl shadow-indigo-600/25 transition-all duration-300 hover:scale-[1.01] active:scale-[0.99] flex items-center justify-center gap-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                    <span>Obtener Descarga</span>
+                </button>
+
+            </form>
+        </div>
+
+        <div id="download-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md opacity-0 pointer-events-none transition-all duration-300">
+            
+            <div class="glass-card w-full max-w-lg rounded-3xl p-6 sm:p-8 shadow-2xl transform scale-95 transition-all duration-300 relative border border-slate-700/80">
+                
+                <!-- Close Button -->
+                <button type="button" id="modal-close-x" class="absolute top-4 right-4 text-slate-400 hover:text-white p-2 rounded-xl hover:bg-slate-800 transition-colors">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+
+                <!-- Modal Content Wrapper -->
+                <div class="flex flex-col items-center text-center">
+                    
+                    <!-- Platform Icon Bubble -->
+                    <div id="modal-platform-bubble" class="w-16 h-16 rounded-2xl bg-gradient-to-br from-indigo-500 to-pink-500 p-3 flex items-center justify-center text-white mb-4 shadow-lg shadow-indigo-500/30">
+                        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                    </div>
+
+                    <!-- Modal Title & Subtitle -->
+                    <h3 id="modal-title" class="text-xl sm:text-2xl font-bold text-white dark:text-white light:text-slate-900 mb-2">
+                        Procesando Enlace
+                    </h3>
+                    <p id="modal-subtitle" class="text-xs sm:text-sm text-slate-400 mb-6 max-w-xs">
+                        Guardando en tu dispositivo... Gracias por usar DownSnap.
+                    </p>
+
+                    <!-- Progress Bar Section -->
+                    <div id="modal-progress-section" class="w-full mb-6">
+                        <div class="w-full bg-slate-900 rounded-full h-3 mb-2 overflow-hidden border border-slate-700/80 p-0.5">
+                            <div id="modal-progress-bar" class="bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 h-full rounded-full transition-all duration-300 w-0"></div>
+                        </div>
+                        <div class="flex justify-between text-xs font-mono text-slate-400">
+                            <span id="modal-progress-status">Conectando con servidor...</span>
+                            <span id="modal-progress-percent">0%</span>
+                        </div>
+                    </div>
+
+                    <!-- Result Container: Single Direct Download Button -->
+                    <div id="modal-result-single" class="w-full hidden space-y-3 mb-6">
+                        <a id="modal-direct-download-link" href="#" target="_blank" rel="noopener noreferrer" 
+                           class="w-full py-4 px-6 rounded-2xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-base flex items-center justify-center gap-2 shadow-lg shadow-emerald-600/30 transition-all transform hover:scale-[1.02]">
+                            <svg class="w-5 h-5 animate-bounce" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                            <span>¡Descarga Lista! Haz clic para guardar</span>
+                        </a>
+                        <p class="text-[11px] text-slate-400">Si la descarga no inicia automáticamente, usa el botón superior.</p>
+                    </div>
+
+                    <!-- Result Container: Gallery Picker for Multi-photos / Reels -->
+                    <div id="modal-result-picker" class="w-full hidden mb-6 max-h-60 overflow-y-auto no-scrollbar space-y-2 text-left">
+                        <span class="text-xs font-semibold text-slate-400 block mb-2">Archivos encontrados:</span>
+                        <div id="picker-items-list" class="space-y-2">
+                            <!-- Injected dynamically -->
+                        </div>
+                    </div>
+
+                    <!-- Result Container: Error Notice -->
+                    <div id="modal-error-box" class="w-full hidden p-4 rounded-2xl bg-rose-500/10 border border-rose-500/20 text-rose-300 text-xs text-left mb-6">
+                        <p id="modal-error-text">No se pudo procesar este enlace. Verifica que sea público e inténtalo de nuevo.</p>
+                    </div>
+
+                    <!-- Bottom Close Button -->
+                    <button type="button" id="modal-close-btn" class="w-full py-3 px-4 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-medium text-sm transition-colors border border-slate-700">
+                        Cerrar Ventana
+                    </button>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <section class="mt-12 mb-16">
+            <h2 class="text-xl font-bold text-white dark:text-white light:text-slate-900 mb-6 text-center">
+                ¿Cómo descargar contenido de cada plataforma?
+            </h2>
+
+            <!-- Tab Headers -->
+            <div class="flex items-center justify-center gap-2 overflow-x-auto pb-4 no-scrollbar mb-6" id="info-tabs">
+                <button data-tab="tab-tiktok" class="info-tab-btn active px-4 py-2 rounded-xl text-xs font-bold bg-indigo-600 text-white transition-all">TikTok</button>
+                <button data-tab="tab-pinterest" class="info-tab-btn px-4 py-2 rounded-xl text-xs font-bold bg-slate-800 text-slate-400 hover:text-white transition-all">Pinterest</button>
+                <button data-tab="tab-youtube" class="info-tab-btn px-4 py-2 rounded-xl text-xs font-bold bg-slate-800 text-slate-400 hover:text-white transition-all">YouTube</button>
+                <button data-tab="tab-facebook" class="info-tab-btn px-4 py-2 rounded-xl text-xs font-bold bg-slate-800 text-slate-400 hover:text-white transition-all">Facebook</button>
+                <button data-tab="tab-instagram" class="info-tab-btn px-4 py-2 rounded-xl text-xs font-bold bg-slate-800 text-slate-400 hover:text-white transition-all">Instagram</button>
+                <button data-tab="tab-spotify" class="info-tab-btn px-4 py-2 rounded-xl text-xs font-bold bg-slate-800 text-slate-400 hover:text-white transition-all">Spotify</button>
+            </div>
+
+            <!-- Tab Contents -->
+            <div class="glass-card rounded-2xl p-6 text-sm text-slate-300 space-y-3">
+                <div id="tab-tiktok" class="tab-content block">
+                    <h3 class="font-bold text-white text-base mb-2">Descargar videos de TikTok sin marca de agua</h3>
+                    <ol class="list-decimal list-inside space-y-1.5 text-slate-300">
+                        <li>Abre la aplicación de TikTok y busca el video o carrusel de imágenes que deseas guardar.</li>
+                        <li>Haz clic en el botón <strong>Compartir</strong> y selecciona <strong>Copiar enlace</strong>.</li>
+                        <li>Pega la URL en el campo superior de DownSnap y presiona <strong>Obtener Descarga</strong>.</li>
+                    </ol>
+                </div>
+
+                <div id="tab-pinterest" class="tab-content hidden">
+                    <h3 class="font-bold text-white text-base mb-2">Guardar imágenes y videos de Pinterest</h3>
+                    <ol class="list-decimal list-inside space-y-1.5 text-slate-300">
+                        <li>Ingresa a Pinterest y abre el Pin que te gusta.</li>
+                        <li>Toca los tres puntos superiores o el icono de compartir y selecciona <strong>Copiar enlace</strong>.</li>
+                        <li>Pégalo en DownSnap para descargarlo en máxima resolución original.</li>
+                    </ol>
+                </div>
+
+                <div id="tab-youtube" class="tab-content hidden">
+                    <h3 class="font-bold text-white text-base mb-2">Descargar videos de YouTube y Shorts a MP4 o MP3</h3>
+                    <ol class="list-decimal list-inside space-y-1.5 text-slate-300">
+                        <li>Copia el enlace de cualquier video tradicional o Short de YouTube.</li>
+                        <li>Elige si deseas guardarlo como video HD (MP4) o audio de alta calidad (MP3).</li>
+                        <li>Procesa la descarga directa en tu celular o computadora.</li>
+                    </ol>
+                </div>
+
+                <div id="tab-facebook" class="tab-content hidden">
+                    <h3 class="font-bold text-white text-base mb-2">Descargar Reels y videos de Facebook</h3>
+                    <ol class="list-decimal list-inside space-y-1.5 text-slate-300">
+                        <li>Copia el enlace del video o Reel público en Facebook.</li>
+                        <li>Informa la URL en DownSnap y obtén el archivo MP4 limpio de reproductores externos.</li>
+                    </ol>
+                </div>
+
+                <div id="tab-instagram" class="tab-content hidden">
+                    <h3 class="font-bold text-white text-base mb-2">Descargar Reels, Historias y Carruseles de Instagram</h3>
+                    <ol class="list-decimal list-inside space-y-1.5 text-slate-300">
+                        <li>Copia el enlace de la publicación o Reel desde la app de Instagram.</li>
+                        <li>Si la publicación contiene múltiples fotos, DownSnap te permitirá elegir cuál guardar individualmente.</li>
+                    </ol>
+                </div>
+
+                <div id="tab-spotify" class="tab-content hidden">
+                    <h3 class="font-bold text-white text-base mb-2">Convertir canciones de Spotify a audio MP3</h3>
+                    <ol class="list-decimal list-inside space-y-1.5 text-slate-300">
+                        <li>Abre Spotify, selecciona la canción y haz clic en <strong>Compartir -> Copiar enlace de la canción</strong>.</li>
+                        <li>Pégala en DownSnap para extraer la pista de audio en calidad 320kbps.</li>
+                    </ol>
+                </div>
+            </div>
+        </section>
+
+        <section class="mb-16">
+            <h2 class="text-xl font-bold text-white dark:text-white light:text-slate-900 mb-6 text-center">
+                Preguntas Frecuentes
+            </h2>
+
+            <div class="space-y-3 max-w-3xl mx-auto">
+                
+                <div class="glass-card rounded-2xl overflow-hidden transition-all">
+                    <button type="button" class="faq-toggle w-full p-4 text-left font-bold text-slate-200 flex justify-between items-center">
+                        <span>¿El servicio de DownSnap es completamente gratuito?</span>
+                        <svg class="w-5 h-5 text-indigo-400 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                    </button>
+                    <div class="faq-content hidden p-4 pt-0 text-sm text-slate-400 border-t border-slate-800">
+                        Sí, DownSnap es 100% gratuito. No requiere registro, instalación de extensiones ni pagos de suscripciones.
+                    </div>
+                </div>
+
+                <div class="glass-card rounded-2xl overflow-hidden transition-all">
+                    <button type="button" class="faq-toggle w-full p-4 text-left font-bold text-slate-200 flex justify-between items-center">
+                        <span>¿Los videos de TikTok se descargan realmente sin marca de agua?</span>
+                        <svg class="w-5 h-5 text-indigo-400 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                    </button>
+                    <div class="faq-content hidden p-4 pt-0 text-sm text-slate-400 border-t border-slate-800">
+                        Correcto. Nuestro motor de extracción remueve automáticamente el logotipo animado y el nombre de usuario de TikTok para entregarte un archivo limpio en MP4.
+                    </div>
+                </div>
+
+                <div class="glass-card rounded-2xl overflow-hidden transition-all">
+                    <button type="button" class="faq-toggle w-full p-4 text-left font-bold text-slate-200 flex justify-between items-center">
+                        <span>¿Dónde se guardan los archivos en mi dispositivo?</span>
+                        <svg class="w-5 h-5 text-indigo-400 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                    </button>
+                    <div class="faq-content hidden p-4 pt-0 text-sm text-slate-400 border-t border-slate-800">
+                        Los archivos se guardan directamente en la carpeta predeterminada de "Descargas" de tu navegador (tanto en Android, iPhone, Windows o Mac).
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="relative z-10 border-t border-slate-800/80 bg-slate-950 py-8 text-center text-xs text-slate-500">
+        <div class="max-w-6xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div class="flex items-center gap-2">
+                <span class="font-bold text-slate-300">DownSnap</span>
+                <span>&copy; 2026 Todos los derechos reservados.</span>
+            </div>
+            <p class="text-slate-600">Herramienta independiente no afiliada con TikTok, Meta, Google o Spotify.</p>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            
+            // --- DOM References ---
+            const themeToggleBtn = document.getElementById('theme-toggle');
+            const themeSun = document.getElementById('theme-sun');
+            const themeMoon = document.getElementById('theme-moon');
+            const urlInput = document.getElementById('url-input');
+            const pasteBtn = document.getElementById('paste-btn');
+            const clearBtn = document.getElementById('clear-btn');
+            const detectedIcon = document.getElementById('detected-icon');
+            const downloadForm = document.getElementById('download-form');
+            const platformButtons = document.querySelectorAll('.platform-btn');
+            
+            // Modal DOM
+            const modal = document.getElementById('download-modal');
+            const modalCloseX = document.getElementById('modal-close-x');
+            const modalCloseBtn = document.getElementById('modal-close-btn');
+            const modalTitle = document.getElementById('modal-title');
+            const modalSubtitle = document.getElementById('modal-subtitle');
+            const modalProgressSection = document.getElementById('modal-progress-section');
+            const modalProgressBar = document.getElementById('modal-progress-bar');
+            const modalProgressStatus = document.getElementById('modal-progress-status');
+            const modalProgressPercent = document.getElementById('modal-progress-percent');
+            const modalResultSingle = document.getElementById('modal-result-single');
+            const modalDirectDownloadLink = document.getElementById('modal-direct-download-link');
+            const modalResultPicker = document.getElementById('modal-result-picker');
+            const pickerItemsList = document.getElementById('picker-items-list');
+            const modalErrorBox = document.getElementById('modal-error-box');
+            const modalErrorText = document.getElementById('modal-error-text');
+
+            // Cobalt API Endpoints for Real Downloads (with failover nodes)
+            const COBALT_ENDPOINTS = [
+                'https://api.cobalt.tools/api/json',
+                'https://co.wuk.sh/api/json',
+                'https://cobalt.api.scld.app/api/json'
+            ];
+
+            let progressInterval = null;
+
+            // --- Theme Switcher ---
+            themeToggleBtn.addEventListener('click', () => {
+                const isDark = document.documentElement.classList.toggle('dark');
+                document.documentElement.classList.toggle('light', !isDark);
+                themeSun.classList.toggle('hidden', isDark);
+                themeMoon.classList.toggle('hidden', !isDark);
+            });
+
+            // --- Auto-Platform Detection ---
+            function detectPlatform(url) {
+                const lower = url.toLowerCase();
+                let platform = 'tiktok'; // default
+
+                if (lower.includes('tiktok.com')) platform = 'tiktok';
+                else if (lower.includes('pinterest.com') || lower.includes('pin.it')) platform = 'pinterest';
+                else if (lower.includes('youtube.com') || lower.includes('youtu.be')) platform = 'youtube';
+                else if (lower.includes('facebook.com') || lower.includes('fb.watch')) platform = 'facebook';
+                else if (lower.includes('instagram.com')) platform = 'instagram';
+                else if (lower.includes('spotify.com')) platform = 'spotify';
+
+                // Update active platform button highlight
+                platformButtons.forEach(btn => {
+                    btn.classList.toggle('active', btn.dataset.platform === platform);
+                });
+
+                return platform;
+            }
+
+            urlInput.addEventListener('input', (e) => {
+                const val = e.target.value.trim();
+                clearBtn.classList.toggle('hidden', val.length === 0);
+                if (val.length > 5) {
+                    detectPlatform(val);
+                }
+            });
+
+            clearBtn.addEventListener('click', () => {
+                urlInput.value = '';
+                clearBtn.classList.add('hidden');
+                urlInput.focus();
+            });
+
+            // --- Paste Button Clipboard API ---
+            pasteBtn.addEventListener('click', async () => {
+                try {
+                    const text = await navigator.clipboard.readText();
+                    if (text) {
+                        urlInput.value = text;
+                        clearBtn.classList.remove('hidden');
+                        detectPlatform(text);
+                    }
+                } catch (err) {
+                    // Fallback input focus
+                    urlInput.focus();
+                }
+            });
+
+            // Platform Filter Button Click
+            platformButtons.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    platformButtons.forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                });
+            });
+
+            // --- Modal Helpers ---
+            function openModal() {
+                modal.classList.remove('opacity-0', 'pointer-events-none');
+                // Reset state
+                modalProgressSection.classList.remove('hidden');
+                modalResultSingle.classList.add('hidden');
+                modalResultPicker.classList.add('hidden');
+                modalErrorBox.classList.add('hidden');
+                modalProgressBar.style.width = '0%';
+                modalProgressPercent.textContent = '0%';
+                modalProgressStatus.textContent = 'Iniciando conexión con servidor...';
+            }
+
+            function closeModal() {
+                modal.classList.add('opacity-0', 'pointer-events-none');
+                if (progressInterval) clearInterval(progressInterval);
+            }
+
+            modalCloseX.addEventListener('click', closeModal);
+            modalCloseBtn.addEventListener('click', closeModal);
+
+            // --- Real Download Execution via Cobalt API ---
+            downloadForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const rawUrl = urlInput.value.trim();
+
+                if (!rawUrl) return;
+
+                const detected = detectPlatform(rawUrl);
+                const selectedFormat = document.querySelector('input[name="format"]:checked')?.value || 'mp4-1080';
+
+                openModal();
+
+                modalTitle.textContent = `Procesando de ${detected.toUpperCase()}`;
+                modalSubtitle.textContent = `Guardando en tu dispositivo... Gracias por usar DownSnap.`;
+
+                // Simulate UI progress while executing real API fetch
+                let currentProgress = 5;
+                progressInterval = setInterval(() => {
+                    if (currentProgress < 90) {
+                        currentProgress += Math.floor(Math.random() * 8) + 3;
+                        if (currentProgress > 90) currentProgress = 90;
+                        modalProgressBar.style.width = currentProgress + '%';
+                        modalProgressPercent.textContent = currentProgress + '%';
+
+                        if (currentProgress > 30 && currentProgress < 60) {
+                            modalProgressStatus.textContent = 'Analizando metadatos y eliminando marcas...';
+                        } else if (currentProgress >= 60) {
+                            modalProgressStatus.textContent = 'Generando enlace directo de alta velocidad...';
+                        }
+                    }
+                }, 250);
+
+                // Prepare API parameters
+                const requestPayload = {
+                    url: rawUrl,
+                    videoQuality: selectedFormat.includes('720') ? '720' : '1080',
+                    downloadMode: selectedFormat === 'mp3' ? 'audio' : 'auto',
+                    audioFormat: 'mp3',
+                    noWatermark: true
+                };
+
+                let apiSuccess = false;
+                let apiData = null;
+
+                // Attempt fetching through endpoints
+                for (const endpoint of COBALT_ENDPOINTS) {
+                    try {
+                        const response = await fetch(endpoint, {
+                            method: 'POST',
+                            headers: {
+                                'Accept': 'application/json',
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify(requestPayload)
+                        });
+
+                        if (response.ok) {
+                            apiData = await response.json();
+                            if (apiData && (apiData.url || apiData.picker || apiData.status === 'redirect' || apiData.status === 'tunnel')) {
+                                apiSuccess = true;
+                                break;
+                            }
+                        }
+                    } catch (err) {
+                        console.warn(`Endpoint ${endpoint} failed, trying fallback...`);
+                    }
+                }
+
+                clearInterval(progressInterval);
+
+                if (apiSuccess && apiData) {
+                    // Complete progress animation
+                    modalProgressBar.style.width = '100%';
+                    modalProgressPercent.textContent = '100%';
+                    modalProgressStatus.textContent = '¡Completado con éxito!';
+
+                    setTimeout(() => {
+                        modalProgressSection.classList.add('hidden');
+
+                        if (apiData.status === 'picker' && Array.isArray(apiData.picker)) {
+                            // Gallery picker response
+                            modalTitle.textContent = "Archivos Disponibles";
+                            modalResultPicker.classList.remove('hidden');
+                            pickerItemsList.innerHTML = '';
+
+                            apiData.picker.forEach((item, index) => {
+                                const btn = document.createElement('a');
+                                btn.href = item.url;
+                                btn.target = '_blank';
+                                btn.rel = 'noopener noreferrer';
+                                btn.className = "flex items-center justify-between p-3 rounded-xl bg-slate-900 border border-slate-700 text-xs font-semibold text-white hover:bg-slate-800 transition-colors";
+                                btn.innerHTML = `<span>Elemento #${index + 1} (${item.type || 'Media'})</span> <span class="text-emerald-400">Descargar &rarr;</span>`;
+                                pickerItemsList.appendChild(btn);
+                            });
+
+                        } else {
+                            // Direct URL response
+                            const downloadUrl = apiData.url;
+                            modalTitle.textContent = "Descarga Lista";
+                            modalResultSingle.classList.remove('hidden');
+                            modalDirectDownloadLink.href = downloadUrl;
+
+                            // Trigger real browser download automatically
+                            const tempAnchor = document.createElement('a');
+                            tempAnchor.href = downloadUrl;
+                            tempAnchor.target = '_blank';
+                            tempAnchor.rel = 'noopener noreferrer';
+                            document.body.appendChild(tempAnchor);
+                            tempAnchor.click();
+                            document.body.removeChild(tempAnchor);
+                        }
+                    }, 400);
+
+                } else {
+                    // API Failure handling
+                    modalProgressBar.style.width = '100%';
+                    modalProgressSection.classList.add('hidden');
+                    modalTitle.textContent = "Aviso de Descarga";
+                    modalErrorBox.classList.remove('hidden');
+                    modalErrorText.textContent = "El servidor de extracción no pudo procesar este enlace. Asegúrate de que el video/contenido sea de una cuenta pública o reintenta en un momento.";
+                }
+
+            });
+
+            // --- Info Tabs Interaction ---
+            const tabBtns = document.querySelectorAll('.info-tab-btn');
+            const tabContents = document.querySelectorAll('.tab-content');
+
+            tabBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const target = btn.dataset.tab;
+                    tabBtns.forEach(b => {
+                        b.classList.remove('active', 'bg-indigo-600', 'text-white');
+                        b.classList.add('bg-slate-800', 'text-slate-400');
+                    });
+                    btn.classList.add('active', 'bg-indigo-600', 'text-white');
+                    btn.classList.remove('bg-slate-800', 'text-slate-400');
+
+                    tabContents.forEach(c => {
+                        c.classList.toggle('hidden', c.id !== target);
+                        c.classList.toggle('block', c.id === target);
+                    });
+                });
+            });
+
+            // --- FAQ Accordion Interaction ---
+            const faqToggles = document.querySelectorAll('.faq-toggle');
+            faqToggles.forEach(toggle => {
+                toggle.addEventListener('click', () => {
+                    const content = toggle.nextElementSibling;
+                    const icon = toggle.querySelector('svg');
+                    content.classList.toggle('hidden');
+                    icon.classList.toggle('rotate-180');
+                });
+            });
+
+        });
+    </script>
+</body>
+</html>
